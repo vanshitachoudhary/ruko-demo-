@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ruko: prototype demo</title>
+<style>
+:root{--bg:#EEF1F8;--card:#fff;--soft:#F1F4FA;--text:#0F1B3D;--mut:#4A5578;--navy:#0F1B3D;--amber:#F5A524;--red:#E5484D;--green:#2FB67C;--line:#D5DBEA;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0A1022;--card:#141D3A;--soft:#1C2750;--text:#F2F5FF;--mut:#A9B4D6;--line:#2B3766}}
+:root[data-theme="dark"]{--bg:#0A1022;--card:#141D3A;--soft:#1C2750;--text:#F2F5FF;--mut:#A9B4D6;--line:#2B3766}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans Devanagari",sans-serif}
+.wrap{max-width:440px;margin:0 auto;padding:12px}
+.banner{background:var(--navy);color:#fff;border-radius:12px;padding:8px 12px;font-size:12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.banner b{color:var(--amber)}
+.lang{background:none;border:1px solid #fff6;color:#fff;border-radius:8px;padding:4px 10px;font-size:12px;cursor:pointer}
+.phone{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;margin-top:10px;min-height:520px;display:flex;flex-direction:column;gap:12px}
+h1{font-size:22px;margin:0}h2{font-size:18px;margin:0}
+.mut{color:var(--mut);font-size:14px}
+.callbox{background:var(--navy);color:#fff;border-radius:16px;padding:16px}
+.callbox .n{font-size:13px;opacity:.75}.callbox .q{font-size:17px;margin-top:6px;line-height:1.45}
+.bubble{background:var(--soft);border-radius:16px;padding:14px;font-size:17px;line-height:1.5;border-left:5px solid var(--amber)}
+.row{display:flex;gap:10px}
+button{font:inherit;cursor:pointer}
+.btn{flex:1;min-height:56px;border-radius:14px;border:0;font-size:18px;font-weight:700;color:#fff;background:var(--navy)}
+.btn.y{background:var(--green)}.btn.n{background:var(--red)}.btn.a{background:var(--amber);color:#0F1B3D}
+.btn.ghost{background:var(--soft);color:var(--text);border:1px solid var(--line);font-weight:600;font-size:15px;min-height:44px}
+.hold{position:relative;overflow:hidden;min-height:76px;border-radius:18px;border:0;background:var(--red);color:#fff;font-size:20px;font-weight:800;touch-action:none;user-select:none;-webkit-user-select:none}
+.hold i{position:absolute;left:0;top:0;bottom:0;width:0;background:#0003;transition:width 1.2s linear}
+.hold.on i{width:100%}.hold span{position:relative}
+.prog{height:6px;background:var(--soft);border-radius:6px;overflow:hidden}.prog div{height:100%;background:var(--amber);transition:width .3s}
+.verdict{border-radius:16px;padding:16px;color:#fff}
+.verdict.red{background:var(--red)}.verdict.yellow{background:var(--amber);color:#0F1B3D}.verdict.green{background:var(--green)}
+.verdict h2{font-size:22px}.verdict p{margin:6px 0 0;font-size:17px;line-height:1.45}
+.card{background:var(--soft);border-radius:14px;padding:12px 14px;font-size:15px;line-height:1.5}
+.card b{display:block;margin-bottom:2px}
+.ok{color:var(--green);font-weight:700}
+ol{margin:6px 0 0;padding-left:20px}li{margin:4px 0}
+.dots::after{content:"";animation:d 1.2s steps(4) infinite}@keyframes d{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
+.alarm{border:2px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--soft)}.alarm b{display:block;font-size:16px;margin-top:4px}.alarm.ring{border-color:var(--red);background:#E5484D22;animation:rg .5s infinite alternate}@keyframes rg{to{background:#E5484D66}}
+.foot{font-size:12px;color:var(--mut);text-align:center;margin:12px 4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="banner"><span><b>Prototype demo.</b> Simulated: no real call, AI or report.</span><button class="lang" id="lb">English</button></div>
+  <div class="phone" id="ph"></div>
+  <p class="foot" id="vs" hidden>v7 | voice: -</p>
+  <p class="foot">Ruko by Vanshita Choudhary, Acropolis Institute of Technology &amp; Research, Indore. Tata Social Enterprise Challenge.</p>
+</div>
+<script>
+const L={hi:{
+ un:"अनजान नंबर",scam:"“आप डिजिटल अरेस्ट में हैं। वीडियो पर रहिए। किसी को मत बताइए।”",
+ hold:"✋ 5 दबाकर रखिए",tap:"दबाकर रखना मुश्किल? यहाँ टैप करें",hint:"असली फोन में बस एक कुंजी (जैसे 5) दबाकर रखनी होगी।",
+ intro:"नमस्ते, मैं रुको हूँ। घबराइए मत। उस कॉल को काट दीजिए और मेरे साथ रहिए। मैं तीन सवाल पूछूँगी।",start:"ठीक है",
+ q:["क्या वे पैसे या ओटीपी माँग रहे हैं?","क्या उन्होंने कहा कि कॉल मत काटना?","क्या उन्होंने कहा कि किसी को मत बताना?"],yes:"हाँ",no:"नहीं",qn:"सवाल",
+ v:{red:["लाल: यह स्कैम है।","फोन काट दीजिए। पैसे या ओटीपी मत दीजिए। कोई भी पुलिस फोन पर गिरफ्तार नहीं करती।"],yellow:["पीला: सावधान रहिए।","कुछ भी देने से पहले अपने घर वालों से पूछिए।"],green:["हरा: सुरक्षित लगता है।","फिर भी कभी किसी को ओटीपी मत बताइए।"]},
+ fam1:"आपके बेटे राहुल को कॉल में जोड़ा जा रहा है",fa:"राहुल के फोन पर अलार्म",fb:"“माँ को स्कैम कॉल आ रही है! अभी कॉल में जुड़िए।”",fj:"राहुल ने अलार्म देखा और जुड़ गए",fam2:"राहुल कॉल में जुड़ गए। वे आपसे बात करेंगे।",
+ rep:"क्या मैं इस नंबर को 1930 साइबर क्राइम हेल्पलाइन पर रिपोर्ट कर दूँ?",repy:"हाँ, रिपोर्ट करें",repn:"नहीं",
+ card:"रिपोर्ट तैयार (डेमो)",type:"प्रकार",tv:"डिजिटल अरेस्ट की धमकी",tm:"समय",num:"नंबर",cons:"सहमति",consv:"आपने हाँ कहा",
+ skipped:"ठीक है, रिपोर्ट नहीं की गई।",sent:"क्या आपने पैसे भेज दिए?",
+ r:["अपने बैंक की हेल्पलाइन पर तुरंत कॉल करके ट्रांसफर रुकवाने को कहिए।","1930 पर कॉल कीजिए या cybercrime.gov.in पर रिपोर्ट कीजिए।","अपने परिवार को अभी बताइए।"],rt:"रुको राहत: अगले कदम",rt2:"रुको राहत: अगर पैसे भेज दिए हों तो",
+ nm:"बहुत अच्छा। अब कोई पैसा या ओटीपी मत दीजिए। मैं आपके साथ हूँ।",again:"फिर से देखें",note:"असली सेवा में यह रिपोर्ट सहमति के बाद 1930 तक भेजी जाएगी।"},
+en:{
+ un:"Unknown number",scam:"“You are under digital arrest. Stay on video. Tell no one.”",
+ hold:"✋ Hold key 5",tap:"Hard to hold? Tap here instead",hint:"On a real phone, the senior just holds one key (like 5).",
+ intro:"Hello, I am Ruko. Do not panic. Hang up on that call and stay with me. I will ask three questions.",start:"Okay",
+ q:["Are they asking for money or an OTP?","Did they tell you not to hang up?","Did they tell you to keep it secret?"],yes:"Yes",no:"No",qn:"Question",
+ v:{red:["Red: this is a scam.","Hang up. Do not give money or an OTP. No police arrests anyone over a phone call."],yellow:["Yellow: be careful.","Ask your family before you give anything."],green:["Green: looks safe.","Still, never share an OTP with anyone."]},
+ fam1:"Adding your son Rahul to the call",fa:"Alarm on Rahul's phone",fb:"“Mom is getting a scam call! Join the call now.”",fj:"Rahul saw the alarm and joined",fam2:"Rahul has joined the call. He will talk to you.",
+ rep:"May I report this number to the 1930 cybercrime helpline?",repy:"Yes, report it",repn:"No",
+ card:"Report ready (demo)",type:"Type",tv:"Digital arrest threat",tm:"Time",num:"Number",cons:"Consent",consv:"You said yes",
+ skipped:"Okay, no report was made.",sent:"Have you already sent any money?",
+ r:["Call your bank's helpline right away and ask them to stop the transfer.","Call 1930 or report at cybercrime.gov.in.","Tell your family now."],rt:"Ruko Raahat: next steps",rt2:"Ruko Raahat: if you have already sent money",
+ nm:"Very good. Do not send any money or OTP now. I am with you.",again:"Watch again",note:"In the real service this report would go to 1930 only after consent."}};
+let lang="hi",scr="call",q=0,yes=0,fam=0,rep=null,raahat=null,timer=null;
+const ph=document.getElementById("ph");
+let sp=null,last="";
+function say(t,add){clearTimeout(sp);last=t;try{const sy=speechSynthesis;if(!add)sy.cancel();sp=setTimeout(()=>{try{sy.resume();const v=sy.getVoices().find(x=>x.lang.toLowerCase().replace("_","-").startsWith(lang==="hi"?"hi":"en"));const s=document.getElementById("vs");if(s)s.textContent="v7 | voice: "+(v?v.name:"default");window._q=window._q||[];t.split(/(?<=[।.?!])\s+/).forEach(p=>{const u=new SpeechSynthesisUtterance(p);u.lang=lang==="hi"?"hi-IN":"en-IN";if(v)u.voice=v;u.onerror=e=>{if(s&&e.error!=="interrupted"&&e.error!=="canceled")s.textContent="v7 | voice error: "+e.error};u.onend=()=>{window._q=window._q.filter(x=>x!==u)};window._q.push(u);sy.speak(u)})}catch(e){}},add?0:250)}catch(e){}}
+function go(s){scr=s;render()}
+function startRuko(){go("intro");say(L[lang].intro)}
+function holdStart(e){e.preventDefault();const b=document.getElementById("hb");b.classList.add("on");timer=setTimeout(()=>{timer=null;startRuko()},1250)}
+function holdEnd(){if(timer){clearTimeout(timer);timer=null;const b=document.getElementById("hb");if(b)b.classList.remove("on")}}
+function ask(){go("q");say(L[lang].q[q])}
+function answer(y){if(y)yes++;q++;if(q<3){ask()}else{go("verdict");const k=verdictKey();if(k==="red"){alarm();setTimeout(()=>say(L[lang].v[k].join(" ")),1600);fam=1;setTimeout(()=>{if(scr==="verdict"){fam=2;render();say(L[lang].fam2+" "+L[lang].rep,true)}},4500)}else say(L[lang].v[k].join(" ")+(k==="yellow"?" "+L[lang].sent:""));}}
+function alarm(){try{navigator.vibrate&&navigator.vibrate([300,150,300,150,300]);const c=new (window.AudioContext||window.webkitAudioContext)();const t=c.currentTime;for(let i=0;i<6;i++){const o=c.createOscillator(),g=c.createGain();o.type="square";o.frequency.value=i%2?660:880;g.gain.value=.08;o.connect(g);g.connect(c.destination);o.start(t+i*.25);o.stop(t+i*.25+.2)}}catch(e){}}
+function verdictKey(){return yes>=3?"red":yes>=1?"yellow":"green"}
+function reset(){scr="call";q=0;yes=0;fam=0;rep=null;raahat=null;speechSynthesis&&speechSynthesis.cancel();render()}
+function render(){
+ const t=L[lang];let h="";
+ if(scr==="call"){
+  h=`<div class="callbox"><div class="n">📞 ${t.un}</div><div class="q">${t.scam}</div></div>
+  <button class="hold" id="hb"><i></i><span>${t.hold}</span></button>
+  <button class="btn ghost" onclick="startRuko()">${t.tap}</button><p class="mut">${t.hint}</p>`;
+ }else if(scr==="intro"){
+  h=`<h2>Ruko</h2><div class="bubble">${t.intro}</div><button class="btn" onclick="ask()">${t.start}</button>`;
+ }else if(scr==="q"){
+  h=`<div class="mut">${t.qn} ${q+1}/3</div><div class="prog"><div style="width:${(q+1)/3*100}%"></div></div>
+  <div class="bubble">${t.q[q]}</div><div class="row"><button class="btn y" onclick="answer(true)">${t.yes}</button><button class="btn n" onclick="answer(false)">${t.no}</button></div>`;
+ }else{
+  const k=verdictKey(),v=t.v[k];
+  h=`<div class="verdict ${k}"><h2>${v[0]}</h2><p>${v[1]}</p></div>`;
+  if(k==="red"){
+   h+=`<div class="card"><b>👨‍👦 ${fam===2?t.fam2:t.fam1+'<span class="dots"></span>'}</b></div><div class="alarm ${fam===1?'ring':''}"><div class="mut">📱 ${t.fa}</div><b>${fam===1?'🚨 '+t.fb:'✔ '+t.fj}</b></div>`;
+   if(fam===2){
+    if(rep===null)h+=`<div class="card"><b>${t.rep}</b></div><div class="row"><button class="btn y" onclick="rep=true;render();say(L[lang].card+'. '+L[lang].rt2+'. '+L[lang].r.join(' '))">${t.repy}</button><button class="btn ghost" onclick="rep=false;render();say(L[lang].skipped+' '+L[lang].rt2+'. '+L[lang].r.join(' '))">${t.repn}</button></div>`;
+    else if(rep)h+=`<div class="card"><b class="ok">✔ ${t.card}</b>${t.type}: ${t.tv}<br>${t.tm}: ${new Date().toLocaleTimeString()}<br>${t.num}: +91 98XXX XXX00 (sample)<br>${t.cons}: ${t.consv}</div><p class="mut">${t.note}</p>`;
+    else h+=`<p class="mut">${t.skipped}</p>`;
+     if(rep!==null)h+=`<div class="card"><b>💸 ${t.rt2}</b><ol>${t.r.map(x=>`<li>${x}</li>`).join("")}</ol></div><button class="btn ghost" onclick="say(L[lang].rt2+'. '+L[lang].r.join(' '))">🔊 ${lang==="hi"?"सुनिए":"Listen"}</button>`;
+   }
+  }
+  if(k==="yellow"){
+   if(raahat===null)h+=`<div class="card"><b>💸 ${t.sent}</b></div><button class="btn ghost" onclick="say(L[lang].sent)">🔊 ${lang==="hi"?"सुनिए":"Listen"}</button><div class="row"><button class="btn n" onclick="raahat=true;render();say(L[lang].rt+'. '+L[lang].r.join(' '))">${t.yes}</button><button class="btn y" onclick="raahat=false;render();say(L[lang].nm)">${t.no}</button></div>`;
+   else if(raahat)h+=`<div class="card"><b>${t.rt}</b><ol>${t.r.map(x=>`<li>${x}</li>`).join("")}</ol></div>`;
+   else h+=`<div class="card"><b class="ok">✔ ${t.nm}</b></div>`;
+  }
+  h+=`<button class="btn ghost" onclick="reset()">↻ ${t.again}</button>`;
+ }
+ ph.innerHTML=h;
+ const hb=document.getElementById("hb");
+ if(hb){hb.addEventListener("pointerdown",holdStart);["pointerup","pointerleave","pointercancel"].forEach(ev=>hb.addEventListener(ev,holdEnd))}
+ document.getElementById("lb").textContent=lang==="hi"?"English":"हिन्दी";
+ document.documentElement.lang=lang;
+}
+document.getElementById("lb").onclick=()=>{lang=lang==="hi"?"en":"hi";render()};
+render();
+</script>
+</body>
+</html>
